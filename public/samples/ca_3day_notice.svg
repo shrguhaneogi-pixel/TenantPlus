@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 1100" width="100%" height="100%">
+  <defs>
+    <filter id="paper-shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="2" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="stamp-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#DC2626" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#991B1B" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Paper -->
+  <rect x="25" y="25" width="800" height="1050" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" rx="4" filter="url(#paper-shadow)"/>
+  
+  <!-- Subtle Document Header Bar -->
+  <rect x="40" y="40" width="770" height="6" fill="#0F172A"/>
+
+  <!-- Main Title -->
+  <text x="425" y="90" font-family="'Times New Roman', Times, serif" font-size="22" font-weight="bold" fill="#0F172A" text-anchor="middle" letter-spacing="1">
+    THREE-DAY NOTICE TO PAY RENT OR QUIT
+  </text>
+  <text x="425" y="112" font-family="'Times New Roman', Times, serif" font-size="13" font-style="italic" fill="#475569" text-anchor="middle">
+    Pursuant to California Code of Civil Procedure Section 1161, Subdivision 2
+  </text>
+
+  <!-- Divider Line -->
+  <line x1="60" y1="130" x2="790" y2="130" stroke="#E2E8F0" stroke-width="1.5"/>
+
+  <!-- Tenant & Premises Section -->
+  <text x="65" y="165" font-family="'Times New Roman', Times, serif" font-size="14" font-weight="bold" fill="#0F172A">
+    TO TENANT(S) IN POSSESSION:
+  </text>
+  <text x="65" y="190" font-family="'Times New Roman', Times, serif" font-size="14" fill="#1E293B">
+    Jordan Rivera, AND ALL OTHER RESIDENTS, OCCUPANTS, AND SUBTENANTS IN POSSESSION
+  </text>
+  <text x="65" y="215" font-family="'Times New Roman', Times, serif" font-size="14" font-weight="bold" fill="#0F172A">
+    PREMISES LOCATED AT:
+  </text>
+  <text x="260" y="215" font-family="'Times New Roman', Times, serif" font-size="14" fill="#1E293B">
+    742 Evergreen Terrace, Apartment 4B, Los Angeles, CA 90026
+  </text>
+
+  <!-- Divider -->
+  <line x1="60" y1="235" x2="790" y2="235" stroke="#E2E8F0" stroke-width="1.5"/>
+
+  <!-- Demand Notice Paragraph -->
+  <text x="65" y="270" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    WITHIN THREE (3) DAYS after service upon you of this Notice, you are required to pay the total sum
+  </text>
+  <text x="65" y="290" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    stated below, or quit and surrender possession of the above-described premises to the undersigned landlord.
+  </text>
+
+  <!-- Financial Breakdown Table Box -->
+  <rect x="65" y="315" width="720" height="120" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+  <rect x="65" y="315" width="720" height="28" fill="#F1F5F9"/>
+  <text x="80" y="334" font-family="'Times New Roman', Times, serif" font-size="12" font-weight="bold" fill="#334155">
+    PERIOD / CHARGE DESCRIPTION
+  </text>
+  <text x="650" y="334" font-family="'Times New Roman', Times, serif" font-size="12" font-weight="bold" fill="#334155" text-anchor="end">
+    AMOUNT DEMANDED
+  </text>
+
+  <text x="80" y="365" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    Past Due Unpaid Monthly Rent for September 2026
+  </text>
+  <text x="760" y="365" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B" text-anchor="end">
+    $2,300.00
+  </text>
+
+  <!-- Defective Line Item: Late Fee Highlighted on Document -->
+  <rect x="70" y="378" width="710" height="26" fill="#FEF2F2" stroke="#FCA5A5" stroke-dasharray="3 3"/>
+  <text x="80" y="396" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#991B1B">
+    * Late Payment Charge / Administrative Assessment
+  </text>
+  <text x="760" y="396" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#991B1B" text-anchor="end">
+    $150.00
+  </text>
+
+  <line x1="65" y1="410" x2="785" y2="410" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="80" y="427" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#0F172A">
+    TOTAL AMOUNT DEMANDED IN FULL:
+  </text>
+  <text x="760" y="427" font-family="'Times New Roman', Times, serif" font-size="14" font-weight="bold" fill="#DC2626" text-anchor="end">
+    $2,450.00
+  </text>
+
+  <!-- Payment Instructions (Defective: Missing Hours) -->
+  <text x="65" y="475" font-family="'Times New Roman', Times, serif" font-size="14" font-weight="bold" fill="#0F172A">
+    MANNER OF PAYMENT:
+  </text>
+  <text x="65" y="500" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    Payment must be hand-delivered to Authorized Landlord Agent at:
+  </text>
+  <rect x="65" y="515" width="720" height="48" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="80" y="535" font-family="'Times New Roman', Times, serif" font-size="13" fill="#334155">
+    Pacific Crest Property Holdings LLC — 100 Main Street, Suite 200, Los Angeles, CA 90012
+  </text>
+  <text x="80" y="552" font-family="'Times New Roman', Times, serif" font-size="12" font-style="italic" fill="#64748B">
+    (No physical office hours or days of week stated on face of notice)
+  </text>
+
+  <!-- Consequences warning -->
+  <text x="65" y="595" font-family="'Times New Roman', Times, serif" font-size="12" fill="#334155">
+    FAILURE TO PAY OR QUIT will result in the immediate commencement of legal proceedings (Unlawful Detainer)
+  </text>
+  <text x="65" y="612" font-family="'Times New Roman', Times, serif" font-size="12" fill="#334155">
+    against you to recover possession of the premises, statutory damages, forfeiture of lease, and court costs.
+  </text>
+
+  <!-- Signature & Service Block -->
+  <line x1="60" y1="645" x2="790" y2="645" stroke="#CBD5E1" stroke-width="1"/>
+  
+  <text x="65" y="680" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#0F172A">
+    DATE OF EXECUTION & SERVICE:
+  </text>
+  <text x="320" y="680" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    September 21, 2026
+  </text>
+
+  <text x="65" y="730" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#0F172A">
+    LANDLORD / AGENT:
+  </text>
+  <text x="65" y="755" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    Pacific Crest Property Holdings LLC
+  </text>
+  
+  <!-- Simulated Signature -->
+  <path d="M 65 790 Q 90 770, 120 785 T 180 775 T 240 790" fill="none" stroke="#1E3A8A" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="65" y1="800" x2="300" y2="800" stroke="#94A3B8" stroke-width="1"/>
+  <text x="65" y="818" font-family="'Times New Roman', Times, serif" font-size="11" fill="#64748B">
+    Authorized Signature of Agent for Landlord
+  </text>
+
+  <!-- Proof of Service Box -->
+  <rect x="65" y="845" width="720" height="150" fill="#F8FAFC" stroke="#CBD5E1" stroke-dasharray="2 2"/>
+  <text x="80" y="870" font-family="'Times New Roman', Times, serif" font-size="12" font-weight="bold" fill="#334155">
+    PROOF OF SERVICE (DECLARATION UNDER PENALTY OF PERJURY)
+  </text>
+  <text x="80" y="895" font-family="'Times New Roman', Times, serif" font-size="12" fill="#475569">
+    I, the undersigned process server, declare that on September 21, 2026, I served the foregoing notice upon
+  </text>
+  <text x="80" y="915" font-family="'Times New Roman', Times, serif" font-size="12" fill="#475569">
+    Jordan Rivera by personal delivery at 742 Evergreen Terrace, Apt 4B, Los Angeles, CA 90026.
+  </text>
+  <text x="80" y="945" font-family="'Times New Roman', Times, serif" font-size="11" font-style="italic" fill="#64748B">
+    Executed on September 21, 2026 at Los Angeles, California.
+  </text>
+
+  <!-- Red Urgent Watermark Stamp -->
+  <g transform="rotate(-15 650 200)">
+    <rect x="520" y="160" width="220" height="52" fill="none" stroke="#DC2626" stroke-width="3" stroke-dasharray="4 2" rx="4"/>
+    <text x="630" y="195" font-family="'Arial Black', Gadget, sans-serif" font-size="18" font-weight="900" fill="#DC2626" text-anchor="middle" letter-spacing="2">
+      SERVED NOTICE
+    </text>
+  </g>
+</svg>

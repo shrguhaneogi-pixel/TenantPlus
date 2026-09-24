@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 1100" width="100%" height="100%">
+  <defs>
+    <filter id="ny-shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="2" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="25" y="25" width="800" height="1050" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" rx="4" filter="url(#ny-shadow)"/>
+  
+  <rect x="40" y="40" width="770" height="6" fill="#1E293B"/>
+
+  <text x="425" y="90" font-family="'Times New Roman', Times, serif" font-size="22" font-weight="bold" fill="#0F172A" text-anchor="middle" letter-spacing="1">
+    FOURTEEN (14) DAY WRITTEN DEMAND FOR RENT
+  </text>
+  <text x="425" y="112" font-family="'Times New Roman', Times, serif" font-size="13" font-style="italic" fill="#475569" text-anchor="middle">
+    Pursuant to Real Property Actions and Proceedings Law (RPAPL) § 711, Subdivision 2
+  </text>
+
+  <line x1="60" y1="130" x2="790" y2="130" stroke="#E2E8F0" stroke-width="1.5"/>
+
+  <text x="65" y="165" font-family="'Times New Roman', Times, serif" font-size="14" font-weight="bold" fill="#0F172A">
+    TO TENANT(S):
+  </text>
+  <text x="65" y="190" font-family="'Times New Roman', Times, serif" font-size="14" fill="#1E293B">
+    Marcus Chen, 145 West 84th Street, Apt 3A, New York, NY 10024
+  </text>
+
+  <line x1="60" y1="215" x2="790" y2="215" stroke="#E2E8F0" stroke-width="1.5"/>
+
+  <text x="65" y="250" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    PLEASE TAKE NOTICE that you are indebted to the Landlord for rent of the premises described above:
+  </text>
+
+  <rect x="65" y="280" width="720" height="110" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+  <rect x="65" y="280" width="720" height="28" fill="#F1F5F9"/>
+  <text x="80" y="299" font-family="'Times New Roman', Times, serif" font-size="12" font-weight="bold" fill="#334155">
+    ITEMIZATION OF CHARGES
+  </text>
+  <text x="750" y="299" font-family="'Times New Roman', Times, serif" font-size="12" font-weight="bold" fill="#334155" text-anchor="end">
+    AMOUNT
+  </text>
+
+  <text x="80" y="330" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    September 2026 Base Contract Rent
+  </text>
+  <text x="750" y="330" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B" text-anchor="end">
+    $3,000.00
+  </text>
+
+  <!-- Non-rent illegal charge in NY -->
+  <text x="80" y="360" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#B91C1C">
+    * Legal Surcharge &amp; Late Assessment
+  </text>
+  <text x="750" y="360" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#B91C1C" text-anchor="end">
+    $200.00
+  </text>
+
+  <line x1="65" y1="370" x2="785" y2="370" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="80" y="385" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#0F172A">
+    TOTAL AMOUNT DEMANDED:
+  </text>
+  <text x="750" y="385" font-family="'Times New Roman', Times, serif" font-size="14" font-weight="bold" fill="#DC2626" text-anchor="end">
+    $3,200.00
+  </text>
+
+  <text x="65" y="430" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    YOU ARE REQUIRED to pay the total sum above within FOURTEEN (14) DAYS of the service of this notice,
+  </text>
+  <text x="65" y="450" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    or surrender possession of the premises to the Landlord.
+  </text>
+
+  <text x="65" y="520" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#0F172A">
+    DATE OF SERVICE:
+  </text>
+  <text x="220" y="520" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    September 18, 2026
+  </text>
+
+  <text x="65" y="570" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#0F172A">
+    LANDLORD:
+  </text>
+  <text x="65" y="595" font-family="'Times New Roman', Times, serif" font-size="13" fill="#1E293B">
+    Gotham Residential Trust LLC
+  </text>
+
+  <!-- Legal Aid Notice Footnote -->
+  <rect x="65" y="700" width="720" height="80" fill="#F1F5F9" stroke="#E2E8F0" rx="4"/>
+  <text x="80" y="725" font-family="'Times New Roman', Times, serif" font-size="12" font-weight="bold" fill="#0F172A">
+    NOTICE OF TENANT LEGAL RIGHTS (NEW YORK STATE):
+  </text>
+  <text x="80" y="745" font-family="'Times New Roman', Times, serif" font-size="12" fill="#475569">
+    You may be entitled to free legal representation under the NYC Right to Counsel Law.
+  </text>
+  <text x="80" y="765" font-family="'Times New Roman', Times, serif" font-size="12" fill="#475569">
+    Call 311 or contact the Legal Aid Society Housing Helpline for immediate emergency advice.
+  </text>
+</svg>
