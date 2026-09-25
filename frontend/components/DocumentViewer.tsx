@@ -1,15 +1,15 @@
 /**
- * Project TenantPlus — SVG Bounding Box Document Viewer (FIX 7)
+ * Project TenantPlus — SVG Bounding Box Document Viewer
  * Module: frontend/components/DocumentViewer.tsx
  * 
- * Implements ResizeObserver to dynamically map normalized bounding box floats (0.0 to 1.0)
- * to exact rendered image pixel coordinates via coordinateScaler.ts.
+ * Implements ResizeObserver & GPU-accelerated SVG layers to map normalized bounding boxes (0.0 to 1.0)
+ * to rendered image pixel coordinates with high-contrast glassmorphism tooltips.
  */
 
 'use client';
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Eye, Info, AlertOctagon, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { Eye, Info, ZoomIn, ZoomOut, Maximize2, ShieldAlert } from 'lucide-react';
 import { scaleBoundingBox, BoundingBoxInput } from '../utils/coordinateScaler';
 
 interface DocumentViewerProps {
@@ -116,13 +116,13 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   }, [imgDimensions, dateBoundingBox, amountBoundingBox, additionalBoxes]);
 
   return (
-    <div className="flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+    <div className="flex flex-col rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden gpu-accelerated">
       {/* Header Toolbar */}
       <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
         <div className="flex items-center gap-2">
           <Eye className="h-4 w-4 text-slate-700" />
           <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            Interactive Clause Overlay
+            Interactive Clause Inspection
           </span>
           <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
             {pixelBoxes.length} Overlays Active
@@ -134,7 +134,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
           <button
             type="button"
             onClick={() => setZoom((z) => Math.max(0.75, z - 0.15))}
-            className="rounded p-1 text-slate-600 hover:bg-slate-200"
+            className="rounded p-1 text-slate-600 hover:bg-slate-200 transition-colors"
             title="Zoom Out"
           >
             <ZoomOut className="h-4 w-4" />
@@ -145,7 +145,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
           <button
             type="button"
             onClick={() => setZoom((z) => Math.min(2.0, z + 0.15))}
-            className="rounded p-1 text-slate-600 hover:bg-slate-200"
+            className="rounded p-1 text-slate-600 hover:bg-slate-200 transition-colors"
             title="Zoom In"
           >
             <ZoomIn className="h-4 w-4" />
@@ -153,7 +153,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
           <button
             type="button"
             onClick={() => setZoom(1.0)}
-            className="rounded p-1 text-slate-600 hover:bg-slate-200"
+            className="rounded p-1 text-slate-600 hover:bg-slate-200 transition-colors"
             title="Reset Zoom"
           >
             <Maximize2 className="h-4 w-4" />
@@ -161,13 +161,13 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         </div>
       </div>
 
-      {/* Main Document Viewer Stage */}
+      {/* Main Document Stage */}
       <div
         ref={containerRef}
         className="relative flex-1 overflow-auto bg-slate-900/5 p-4 flex items-center justify-center min-h-[480px] max-h-[700px]"
       >
         <div
-          className="relative transition-transform duration-150 origin-top shadow-lg rounded-lg overflow-hidden bg-white"
+          className="relative transition-transform duration-150 origin-top shadow-lg rounded-xl overflow-hidden bg-white"
           style={{ transform: `scale(${zoom})` }}
         >
           {/* Base Notice Image */}
@@ -197,79 +197,71 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                   : 'rgba(37, 99, 235, 0.15)';
 
                 return (
-                  <g key={box.id} className="pointer-events-auto cursor-pointer">
+                  <g
+                    key={box.id}
+                    className="pointer-events-auto cursor-pointer"
+                    onMouseEnter={() => setHoveredBox(box)}
+                    onMouseLeave={() => setHoveredBox(null)}
+                  >
                     <rect
                       x={box.left}
                       y={box.top}
                       width={box.width}
                       height={box.height}
-                      fill={isHovered ? fillColor.replace('0.20', '0.40') : fillColor}
+                      fill={fillColor}
                       stroke={strokeColor}
-                      strokeWidth={isHovered ? 3.5 : 2}
+                      strokeWidth={isHovered ? 3 : 2}
                       strokeDasharray={box.isDefect ? '4 2' : 'none'}
-                      rx={3}
-                      onMouseEnter={() => setHoveredBox(box)}
-                      onMouseLeave={() => setHoveredBox(null)}
+                      rx={4}
                       className="transition-all duration-150"
                     />
 
-                    {/* Badge Label */}
-                    <g transform={`translate(${box.left + 4}, ${box.top - 12})`}>
-                      <rect
-                        width={Math.min(180, box.label.length * 6.5 + 16)}
-                        height={16}
-                        rx={3}
-                        fill={strokeColor}
-                      />
-                      <text
-                        x={8}
-                        y={11}
-                        fill="#FFFFFF"
-                        fontSize={8.5}
-                        fontWeight="bold"
-                        fontFamily="system-ui, sans-serif"
-                      >
-                        {box.label.replace(/_/g, ' ')}
-                      </text>
-                    </g>
+                    {/* Badge Label Tag */}
+                    <rect
+                      x={box.left}
+                      y={Math.max(0, box.top - 20)}
+                      width={Math.min(160, box.label.length * 8 + 16)}
+                      height={18}
+                      fill={box.isDefect ? '#DC2626' : '#2563EB'}
+                      rx={3}
+                    />
+                    <text
+                      x={box.left + 6}
+                      y={Math.max(12, box.top - 6)}
+                      fill="#FFFFFF"
+                      fontSize={10}
+                      fontWeight="bold"
+                      fontFamily="sans-serif"
+                    >
+                      {box.label}
+                    </text>
                   </g>
                 );
               })}
             </svg>
           )}
-
-          {/* Popover Tooltip */}
-          {hoveredBox && (
-            <div
-              className="absolute z-30 pointer-events-auto rounded-xl border border-slate-300 bg-white p-3.5 shadow-2xl transition-all duration-150 max-w-xs"
-              style={{
-                top: Math.max(10, Math.min(hoveredBox.top + 20, imgDimensions.height - 160)),
-                left: Math.max(10, Math.min(hoveredBox.left, imgDimensions.width - 260)),
-              }}
-            >
-              <div className="flex items-center gap-1.5 border-b border-slate-100 pb-1.5">
-                {hoveredBox.isDefect ? (
-                  <AlertOctagon className="h-4 w-4 text-red-600 shrink-0" />
-                ) : (
-                  <Info className="h-4 w-4 text-blue-600 shrink-0" />
-                )}
-                <span className="text-xs font-bold uppercase tracking-wide text-slate-900">
-                  {hoveredBox.label.replace(/_/g, ' ')}
-                </span>
-              </div>
-
-              <p className="mt-2 text-xs font-mono text-slate-800 bg-slate-50 p-2 rounded border border-slate-200">
-                &ldquo;{hoveredBox.text}&rdquo;
-              </p>
-
-              <p className="mt-1.5 text-[11px] text-slate-600 leading-normal">
-                {hoveredBox.isDefect
-                  ? 'Subject to strict statutory review. Any non-rent fees bundled into notice invalidate unlawful detainer.'
-                  : 'Stated date on notice face used for zero-hallucination court-day counting.'}
-              </p>
-            </div>
-          )}
         </div>
+      </div>
+
+      {/* Glassmorphic Interactive Hover Tooltip Bar */}
+      <div className="border-t border-slate-200 bg-slate-50/90 backdrop-blur-md px-4 py-2.5 text-xs text-slate-700 min-h-[42px] flex items-center justify-between">
+        {hoveredBox ? (
+          <div className="flex items-center gap-2">
+            <span
+              className={`font-bold px-2 py-0.5 rounded text-[10px] uppercase text-white ${
+                hoveredBox.isDefect ? 'bg-rose-600' : 'bg-blue-600'
+              }`}
+            >
+              {hoveredBox.label}
+            </span>
+            <span className="font-semibold text-slate-900">{hoveredBox.text}</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <Info className="h-3.5 w-3.5 text-slate-400" />
+            <span>Hover or click on highlighted bounding box overlays to inspect extracted notice clauses.</span>
+          </div>
+        )}
       </div>
     </div>
   );

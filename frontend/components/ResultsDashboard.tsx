@@ -4,15 +4,15 @@
  * 
  * Features:
  * 1. Softened, authoritative court deadline countdown with tabular numerals
- * 2. Plain-English statutory defects & affirmative defenses checklist
- * 3. Printable defense summary & 1-click legal aid referral triggers
- * 4. Micro-interactions via Framer Motion
+ * 2. Hardware-accelerated Framer Motion entrance variants
+ * 3. Plain-English statutory defects & affirmative defense checklist
+ * 4. Printable defense summary & 1-click legal aid referral triggers
  */
 
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, Variants } from 'motion/react';
 import {
   Clock,
   AlertOctagon,
@@ -24,6 +24,7 @@ import {
   Check,
   ShieldAlert,
   Info,
+  Scale,
 } from 'lucide-react';
 
 interface ResultsDashboardProps {
@@ -92,12 +93,36 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.05,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 14 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.4, ease: 'easeOut' },
+    },
+  };
+
   return (
-    <div className="space-y-5">
-      {/* 1. Softened, High-Clarity Court Deadline Countdown Card */}
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-5 gpu-accelerated"
+    >
+      {/* 1. Court Answer Deadline Countdown Card */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
+        variants={itemVariants}
         className="rounded-2xl border border-rose-200/90 bg-linear-to-b from-rose-50/60 via-white to-slate-50/50 p-5 sm:p-6 shadow-xs relative overflow-hidden"
       >
         <div className="flex items-center justify-between border-b border-rose-100 pb-3">
@@ -122,7 +147,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
           </span>
         </div>
 
-        {/* Big Digit Blocks with Tabular Numerals */}
+        {/* Digit Blocks with Tabular Numerals */}
         <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3 text-center">
           <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-2xs">
             <div className="text-3xl sm:text-4xl font-black font-mono tabular-nums text-white">
@@ -161,7 +186,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
           </div>
         </div>
 
-        {/* Plain-English Legal Finding Banner */}
+        {/* Legal Deadline Banner */}
         <div className="mt-4 rounded-xl bg-white p-3.5 border border-slate-200/80 text-xs shadow-2xs">
           <div className="flex items-start gap-2.5">
             <Calendar className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
@@ -170,9 +195,9 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
                 Deadline: {data.deadline_date_formatted}
               </div>
               <p className="mt-1 text-slate-600 leading-relaxed">
-                Your landlord cannot legally file an eviction lawsuit in court until after this exact date.
-                {data.exclude_weekends ? ' Saturdays and Sundays are excluded.' : ''}
-                {data.exclude_holidays ? ' Official state judicial court holidays are added to your time.' : ''}
+                Your landlord cannot legally file an eviction lawsuit in court until after this date.
+                {data.exclude_weekends ? ' Saturdays and Sundays are excluded under state rules.' : ''}
+                {data.exclude_holidays ? ' Judicial court holidays are added to your time.' : ''}
               </p>
             </div>
           </div>
@@ -181,14 +206,12 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
 
       {/* 2. Key Data Summary Card */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        variants={itemVariants}
         className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            Notice Details
+            Notice Analysis Details
           </h3>
           <button
             type="button"
@@ -196,108 +219,86 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
             className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition-colors"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-            <span className="font-medium">{copied ? 'Copied to Clipboard' : 'Copy Summary'}</span>
+            <span className="font-medium">{copied ? 'Copied' : 'Copy Summary'}</span>
           </button>
         </div>
 
-        <div className="mt-3.5 grid grid-cols-2 gap-3 text-xs">
-          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 col-span-2">
-            <span className="text-[11px] text-slate-500 font-medium">Notice Type & Jurisdiction</span>
-            <div className="text-sm font-bold text-slate-900 mt-0.5">
-              {data.notice_type} · {data.jurisdiction_state || 'CA'}
-            </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/70">
+            <span className="text-slate-500 font-medium">Notice Classification</span>
+            <div className="font-bold text-slate-900 text-sm mt-0.5">{data.notice_type}</div>
           </div>
 
-          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
-            <span className="text-[11px] text-slate-500 font-medium">Service Date</span>
-            <div className="text-sm font-bold text-slate-900 mt-0.5">{data.service_date}</div>
-          </div>
-
-          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
-            <span className="text-[11px] text-slate-500 font-medium">Demanded Amount</span>
-            <div className="text-sm font-mono font-bold text-slate-900 mt-0.5 tabular-nums">
-              ${data.demanded_amount.toFixed(2)}
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/70">
+            <span className="text-slate-500 font-medium">Amount Demanded</span>
+            <div className="font-bold text-slate-900 text-sm mt-0.5">
+              ${data.demanded_amount ? data.demanded_amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '0.00'}
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* 3. Defects & Affirmative Defenses Card */}
+      {/* 3. Statutory Defenses & Defects Checklist */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
+        variants={itemVariants}
+        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-3"
       >
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2">
-            <AlertOctagon className="h-5 w-5 text-rose-600" />
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 font-sans">
-                Potential Notice Defenses
-              </h3>
-              <p className="text-xs text-slate-500">Errors that could dismiss or delay an eviction</p>
-            </div>
-          </div>
-
-          {data.has_fatal_defects ? (
-            <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-800 border border-rose-200">
-              {data.defects.length} Defense{data.defects.length > 1 ? 's' : ''} Identified
-            </span>
-          ) : (
-            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 border border-emerald-200">
-              Standard Notice Language
-            </span>
-          )}
+        <div className="flex items-center gap-2">
+          <ShieldAlert className="h-4 w-4 text-rose-600" />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+            Identified Landlord Errors & Defenses
+          </h3>
         </div>
 
-        <div className="mt-3.5 space-y-2.5">
-          {data.defects.length === 0 ? (
-            <div className="rounded-xl bg-slate-50 p-4 text-xs text-slate-600 flex items-start gap-2 border border-slate-100">
-              <Info className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-              <span>
-                No obvious statutory violations detected on the face of the document. Even so, you may have defenses based on habitability, improper service, or retaliation.
-              </span>
-            </div>
-          ) : (
-            data.defects.map((defect, i) => (
+        {data.defects && data.defects.length > 0 ? (
+          <div className="space-y-2 pt-1">
+            {data.defects.map((defect, idx) => (
               <div
-                key={i}
-                className="rounded-xl border border-rose-200/90 bg-rose-50/40 p-3.5 text-xs flex items-start gap-2.5"
+                key={idx}
+                className="p-3 bg-rose-50/70 border border-rose-200/80 rounded-xl text-xs flex items-start gap-2.5"
               >
-                <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <span className="font-bold text-slate-900 block">{defect}</span>
-                  <span className="text-[11px] text-slate-600 mt-1 block leading-normal">
-                    This mistake may give you legal grounds to dismiss an unlawful detainer lawsuit or file a Motion to Quash.
+                <AlertOctagon className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-rose-950 block">{defect}</span>
+                  <span className="text-rose-800 text-[11px] mt-0.5 block leading-normal">
+                    Asserting this defect in your court Answer can force the landlord to dismiss and re-serve.
                   </span>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 flex items-center gap-2">
+            <Info className="h-4 w-4 text-slate-400 shrink-0" />
+            <span>No obvious facial defects detected on notice front page. Always consult legal aid.</span>
+          </div>
+        )}
 
         {/* Action Triggers */}
-        <div className="mt-5 flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={onOpenBrief}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-slate-800 transition-colors"
-          >
-            <Printer className="h-4 w-4 text-rose-400" />
-            <span>Print Defense Brief</span>
-          </button>
+        <div className="pt-2 flex flex-wrap gap-2 justify-end">
+          {onOpenBrief && (
+            <button
+              type="button"
+              onClick={onOpenBrief}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors"
+            >
+              <Printer className="h-3.5 w-3.5 text-slate-500" />
+              <span>Print Defense Summary</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={onOpenLegalAid}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 transition-colors"
-          >
-            <Phone className="h-4 w-4" />
-            <span>Connect with Free Legal Aid</span>
-          </button>
+          {onOpenLegalAid && (
+            <button
+              type="button"
+              onClick={onOpenLegalAid}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 transition-colors"
+            >
+              <Phone className="h-3.5 w-3.5" />
+              <span>Connect Free Legal Aid</span>
+            </button>
+          )}
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
