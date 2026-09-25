@@ -1,12 +1,12 @@
 """
-Project TenantPlus — Backend Pydantic v2 Schemas (PHASE 2)
+Project TenantPlus — Backend Pydantic v2 Schemas (FIX 2)
 Module: backend.schemas
 
 Defines the exact structured output contracts for Google Antigravity Agent
-and the deterministic rules engine.
+and the deterministic rules engine. All bounding box coordinates are normalized floats (0.0 to 1.0).
 """
 
-from typing import List, Optional
+from typing import List, Optional, Any
 from pydantic import BaseModel, Field, field_validator
 from datetime import date
 
@@ -14,7 +14,7 @@ from datetime import date
 class BoundingBox(BaseModel):
     """
     Normalized spatial bounding box coordinates for key clauses.
-    Values are normalized from 0.0 to 1.0 (or scaled up to 1000).
+    All values are normalized floats strictly from 0.0 to 1.0.
     (ymin, xmin) = top-left corner, (ymax, xmax) = bottom-right corner.
     """
     ymin: float = Field(
@@ -50,6 +50,17 @@ class BoundingBox(BaseModel):
         description="Extracted OCR text contained within the bounding region"
     )
 
+    @field_validator("ymin", "xmin", "ymax", "xmax", mode="before")
+    @classmethod
+    def clamp_or_scale_normalized_float(cls, v: Any) -> float:
+        try:
+            val = float(v)
+            if val > 1.0:
+                val = val / 1000.0
+            return max(0.0, min(1.0, val))
+        except (ValueError, TypeError):
+            return 0.0
+
 
 class NoticeExtraction(BaseModel):
     """
@@ -59,7 +70,11 @@ class NoticeExtraction(BaseModel):
     """
     notice_type: str = Field(
         ...,
-        description="Exact notice type or title detected on document, e.g. '3-Day Notice to Pay or Quit'"
+        description="Exact notice type or title detected on document, e.g. '3-Day Notice to Pay or Quit', '14-Day Notice to Quit'"
+    )
+    jurisdiction_state: str = Field(
+        default="CA",
+        description="Detected 2-letter state jurisdiction code, e.g., 'CA', 'NY', 'IL'"
     )
     service_date: str = Field(
         ...,
@@ -80,7 +95,7 @@ class NoticeExtraction(BaseModel):
     )
     extracted_text_blocks: List[str] = Field(
         default_factory=list,
-        description="Verbatim text blocks from the notice used for statutory warning substring verification"
+        description="Verbatim text blocks from the notice used for statutory warning verification"
     )
 
     @field_validator("service_date")
@@ -89,5 +104,12 @@ class NoticeExtraction(BaseModel):
         try:
             date.fromisoformat(v)
             return v
-        except ValueError:
+        except (ValueError, TypeError):
             return date.today().isoformat()
+    
+    @field_validator("jurisdiction_state")
+    @classmethod
+    def uppercase_state(cls, v: str) -> str:
+        if isinstance(v, str) and len(v.strip()) >= 2:
+            return v.strip()[:2].upper()
+        return "CA"

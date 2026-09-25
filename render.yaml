@@ -1,0 +1,27 @@
+# ==============================================================================
+# Project TenantPlus — Render Cloud Deployment Specification
+# ==============================================================================
+
+services:
+  # FastAPI Backend Web Service
+  - type: web
+    name: tenantplus-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    region: oregon
+    plan: starter
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://tenantplus.vercel.app,http://localhost:3000

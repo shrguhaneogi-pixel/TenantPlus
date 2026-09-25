@@ -1,12 +1,15 @@
 /**
- * Project TenantPlus — Upload & Compression Component (PHASE 4)
+ * Project TenantPlus — Upload & Compression Component (FIX 7)
  * Module: frontend/components/UploadDropzone.tsx
  * 
  * Features:
- * 1. Drag-and-drop zone & mobile camera capture
- * 2. HTML5 Canvas WebP compression to minimize payload
- * 3. Stepwise progress status: "Compressing..." -> "Uploading..." -> "Scanning..." -> "Cross-referencing..."
+ * 1. Client-side HTML5 Canvas WebP compression utility
+ * 2. Mobile camera capture and drag-and-drop zone
+ * 3. State selector (CA, NY, IL) passed to FastAPI
+ * 4. Stepwise progress status bar
  */
+
+'use client';
 
 import React, { useState, useRef, ChangeEvent, DragEvent } from 'react';
 import { Upload, Camera, FileText, Sparkles, ShieldCheck, Clock, ArrowRight } from 'lucide-react';
@@ -20,6 +23,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
   onTriageComplete,
   onError,
 }) => {
+  const [selectedState, setSelectedState] = useState<string>('CA');
   const [isDragOver, setIsDragOver] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -88,31 +92,30 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
       const { blob: compressedBlob, dataUrl } = await compressToWebP(file);
 
       // Step 2: Uploading
-      setStatusMessage('Uploading to secure triage bridge...');
+      setStatusMessage('Uploading compressed WebP payload...');
 
       // Step 3: AI Vision OCR
       setTimeout(() => {
         setStatusMessage('Scanning document with Gemini Vision & Antigravity Agent...');
-      }, 700);
+      }, 600);
 
       // Step 4: Cross-referencing Local Statutes
       setTimeout(() => {
-        setStatusMessage('Cross-referencing local statutes & judicial day calendar (Zero LLM Math)...');
-      }, 1400);
+        setStatusMessage(`Cross-referencing ${selectedState} statutes & court holiday calendar...`);
+      }, 1200);
 
-      // Make POST request to endpoint
-      const response = await fetch('/api/v1/extract-notice', {
+      const formData = new FormData();
+      const compressedFile = new File([compressedBlob], 'notice.webp', { type: 'image/webp' });
+      formData.append('file', compressedFile);
+
+      const response = await fetch(`/api/v1/extract-notice?state=${selectedState}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageBase64: dataUrl,
-          mimeType: 'image/webp',
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
         const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.detail || errJson.error || 'Failed to extract notice data');
+        throw new Error(errJson.detail || 'Failed to extract notice data');
       }
 
       const result = await response.json();
@@ -135,39 +138,31 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
     }
   };
 
-  // Instant sample notice for testing
-  const handleLoadSampleNotice = async (sampleId: string) => {
-    try {
-      setIsLoading(true);
-      setStatusMessage('Loading verified statutory eviction sample...');
-      setTimeout(() => {
-        setStatusMessage('Scanning document with Gemini Vision & Antigravity Agent...');
-      }, 500);
-      setTimeout(() => {
-        setStatusMessage('Cross-referencing local statutes & judicial day calendar...');
-      }, 900);
-
-      const res = await fetch(`/api/v1/sample/${sampleId}`);
-      if (!res.ok) throw new Error('Failed to load sample');
-      const sample = await res.json();
-      setIsLoading(false);
-      setStatusMessage('');
-      onTriageComplete(
-        {
-          success: true,
-          data: sample.triage,
-          extraction: sample.extracted,
-        },
-        sample.image_url
-      );
-    } catch (err: any) {
-      setIsLoading(false);
-      onError(err.message || 'Failed to load sample');
-    }
-  };
-
   return (
     <div className="w-full">
+      {/* State Selector Toolbar */}
+      <div className="mb-4 flex items-center justify-between rounded-xl bg-slate-100 p-2.5 border border-slate-200">
+        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+          Select Jurisdiction State:
+        </span>
+        <div className="flex items-center gap-1.5">
+          {['CA', 'NY', 'IL'].map((st) => (
+            <button
+              key={st}
+              type="button"
+              onClick={() => setSelectedState(st)}
+              className={`rounded-lg px-3 py-1 text-xs font-bold transition-all ${
+                selectedState === st
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              {st === 'CA' ? 'California (CA)' : st === 'NY' ? 'New York (NY)' : 'Illinois (IL)'}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Hidden file inputs */}
       <input
         type="file"
@@ -204,14 +199,13 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
         } shadow-sm`}
       >
         {isLoading ? (
-          /* Multi-step progress indicator */
           <div className="py-6 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-600 animate-pulse">
               <Clock className="h-8 w-8 animate-spin" />
             </div>
 
             <h3 className="mt-4 text-lg font-bold text-slate-900 font-serif">
-              Triage Pipeline Active
+              Triage Pipeline Active ({selectedState})
             </h3>
 
             <div className="mx-auto mt-3 max-w-md">
@@ -224,7 +218,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
                 {statusMessage}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                Enforcing strict separation: AI Vision OCR vs Deterministic Python Math
+                Enforcing strict separation: Gemini Vision OCR vs Python Calendar Arithmetic
               </p>
             </div>
           </div>
@@ -238,7 +232,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
               Drag and drop your eviction notice here
             </h3>
             <p className="mt-1 text-sm text-slate-500">
-              Supports photos and scans (JPEG, PNG, WebP)
+              Supports JPEG, PNG, WebP images for {selectedState} jurisdiction
             </p>
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -266,57 +260,14 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
                 <ShieldCheck className="h-4 w-4 text-emerald-600" /> Client-Side WebP Compression
               </span>
               <span className="flex items-center gap-1">
-                <Sparkles className="h-4 w-4 text-emerald-600" /> Google Antigravity Agent OCR
+                <Sparkles className="h-4 w-4 text-emerald-600" /> Antigravity Agent OCR
               </span>
               <span className="flex items-center gap-1">
-                <Clock className="h-4 w-4 text-emerald-600" /> Deterministic Deadline Arithmetic
+                <Clock className="h-4 w-4 text-emerald-600" /> Zero-LLM Court Holiday Math
               </span>
             </div>
           </div>
         )}
-      </div>
-
-      {/* One-Click Sample Notices */}
-      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-red-600" />
-            Instant Verification Samples
-          </span>
-          <span className="text-[11px] text-slate-500">Pre-calibrated with statutory defects</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <button
-            type="button"
-            onClick={() => handleLoadSampleNotice('ca-3day-sample')}
-            disabled={isLoading}
-            className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 text-left hover:border-red-400 transition-all group disabled:opacity-60"
-          >
-            <div>
-              <span className="text-[11px] font-bold text-red-700 uppercase block">California CCP § 1161(2)</span>
-              <span className="text-xs font-bold text-slate-900 group-hover:text-red-700">
-                3-Day Notice to Pay or Quit (Bundled Late Fee Defect)
-              </span>
-            </div>
-            <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-red-600 transition-colors" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleLoadSampleNotice('ny-14day-sample')}
-            disabled={isLoading}
-            className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 text-left hover:border-indigo-400 transition-all group disabled:opacity-60"
-          >
-            <div>
-              <span className="text-[11px] font-bold text-indigo-700 uppercase block">New York RPAPL § 711</span>
-              <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-700">
-                14-Day Demand for Rent (Non-Rent Legal Surcharge)
-              </span>
-            </div>
-            <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
-          </button>
-        </div>
       </div>
     </div>
   );

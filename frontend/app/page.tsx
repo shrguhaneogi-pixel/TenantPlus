@@ -1,11 +1,11 @@
 /**
- * Project TenantPlus — Next.js Main Triage Page
+ * Project TenantPlus — Next.js Main Triage Page (FIX 7)
  * Module: frontend/app/page.tsx
  * 
  * Integrates:
- * 1. UploadDropzone (WebP compression & multi-stage status)
- * 2. DocumentViewer (Interactive SVG coordinate overlay)
- * 3. ResultsDashboard (Red countdown timer & statutory defects card)
+ * 1. UploadDropzone (WebP compression, jurisdiction state selector & status bar)
+ * 2. DocumentViewer (Interactive SVG coordinate overlay with ResizeObserver)
+ * 3. ResultsDashboard (Urgent red countdown timer & statutory defects card)
  */
 
 'use client';
@@ -47,7 +47,7 @@ export default function TenantPlusPage() {
                 TENANT<span className="text-red-600 font-sans font-bold">PLUS</span>
               </span>
               <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-800 uppercase">
-                Hybrid Deterministic
+                Hybrid Deterministic Engine
               </span>
             </div>
           </div>
@@ -93,9 +93,9 @@ export default function TenantPlusPage() {
                 </span>
               </h1>
               <p className="mt-4 text-base text-slate-600 max-w-2xl mx-auto">
-                AI extracts key clauses and spatial coordinates with vision models.
+                AI Vision OCR extracts key clauses and spatial coordinates.
                 All mathematical deadlines and legal defect checks are executed deterministically
-                in Python using cached state housing statutes.
+                in Python using cached state housing statutes and judicial holiday calendars.
               </p>
             </div>
 
@@ -113,7 +113,7 @@ export default function TenantPlusPage() {
                   Triage Analysis Results
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Notice Type: <strong className="text-slate-800">{triageResponse.data?.notice_type}</strong> • Service Date: <strong className="text-slate-800">{triageResponse.data?.service_date}</strong>
+                  Notice Type: <strong className="text-slate-800">{triageResponse.data?.notice_type}</strong> • State: <strong className="text-slate-800">{triageResponse.data?.jurisdiction_state}</strong> • Service Date: <strong className="text-slate-800">{triageResponse.data?.service_date}</strong>
                 </p>
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function TenantPlusPage() {
               {/* Left Column: Interactive Document Viewer */}
               <div className="lg:col-span-6">
                 <DocumentViewer
-                  imageUrl={uploadedImageUrl || '/samples/ca_3day_notice.svg'}
+                  imageUrl={uploadedImageUrl}
                   dateBoundingBox={triageResponse.data?.date_bounding_box}
                   amountBoundingBox={triageResponse.data?.amount_bounding_box}
                 />
@@ -132,7 +132,7 @@ export default function TenantPlusPage() {
               <div className="lg:col-span-6">
                 <ResultsDashboard
                   data={triageResponse.data}
-                  onOpenLegalAid={() => alert(`Connecting with legal aid: 1-888-804-3536`)}
+                  onOpenLegalAid={() => alert(`Connecting with legal aid hotline`)}
                   onOpenBrief={() => window.print()}
                 />
               </div>

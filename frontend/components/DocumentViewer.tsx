@@ -1,29 +1,22 @@
 /**
- * Project TenantPlus — SVG Bounding Box Document Viewer (PHASE 5)
+ * Project TenantPlus — SVG Bounding Box Document Viewer (FIX 7)
  * Module: frontend/components/DocumentViewer.tsx
  * 
- * CRITICAL MATH IMPLEMENTATION:
- * Implements ResizeObserver & onLoad listener to dynamically scale normalized
- * bounding box coordinates (0.0 to 1.0) to the exact rendered pixel dimensions of the <img> tag.
+ * Implements ResizeObserver to dynamically map normalized bounding box floats (0.0 to 1.0)
+ * to exact rendered image pixel coordinates via coordinateScaler.ts.
  */
+
+'use client';
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Eye, Info, AlertOctagon, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
-
-export interface BoundingBoxCoord {
-  ymin: number; // 0.0 to 1.0
-  xmin: number; // 0.0 to 1.0
-  ymax: number; // 0.0 to 1.0
-  xmax: number; // 0.0 to 1.0
-  label?: string;
-  text_content?: string;
-}
+import { scaleBoundingBox, BoundingBoxInput } from '../utils/coordinateScaler';
 
 interface DocumentViewerProps {
   imageUrl: string;
-  dateBoundingBox?: BoundingBoxCoord;
-  amountBoundingBox?: BoundingBoxCoord;
-  additionalBoxes?: BoundingBoxCoord[];
+  dateBoundingBox?: BoundingBoxInput;
+  amountBoundingBox?: BoundingBoxInput;
+  additionalBoxes?: BoundingBoxInput[];
 }
 
 interface PixelBox {
@@ -50,7 +43,6 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   const [hoveredBox, setHoveredBox] = useState<PixelBox | null>(null);
   const [zoom, setZoom] = useState(1.0);
 
-  // CRITICAL MATH: Recalculate pixel coordinates based on rendered width & height
   const updateRenderedDimensions = () => {
     if (imgRef.current) {
       const renderedWidth = imgRef.current.clientWidth || imgRef.current.offsetWidth;
@@ -64,7 +56,6 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   useEffect(() => {
     updateRenderedDimensions();
 
-    // Listen for window resize and container resizing via ResizeObserver
     const observer = new ResizeObserver(() => {
       updateRenderedDimensions();
     });
@@ -81,53 +72,44 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
     };
   }, [imageUrl, zoom]);
 
-  // Transform normalized (0.0 to 1.0) coordinates to screen pixels
+  // Recalculate pixel boxes using coordinateScaler utility
   const pixelBoxes: PixelBox[] = useMemo(() => {
     const { width, height } = imgDimensions;
     if (width === 0 || height === 0) return [];
 
     const result: PixelBox[] = [];
 
-    const mapBox = (box: BoundingBoxCoord, id: string, defaultLabel: string, defaultText: string, isDefect: boolean) => {
-      // Normalize values in case they are scaled 0-1000 instead of 0.0-1.0
-      const normYmin = box.ymin > 1.0 ? box.ymin / 1000 : box.ymin;
-      const normXmin = box.xmin > 1.0 ? box.xmin / 1000 : box.xmin;
-      const normYmax = box.ymax > 1.0 ? box.ymax / 1000 : box.ymax;
-      const normXmax = box.xmax > 1.0 ? box.xmax / 1000 : box.xmax;
-
-      const top = Math.max(0, normYmin * height);
-      const left = Math.max(0, normXmin * width);
-      const boxWidth = Math.max(12, (normXmax - normXmin) * width);
-      const boxHeight = Math.max(12, (normYmax - normYmin) * height);
-
-      return {
-        id,
-        top,
-        left,
-        width: boxWidth,
-        height: boxHeight,
-        label: box.label || defaultLabel,
-        text: box.text_content || defaultText,
-        isDefect,
-      };
-    };
-
     if (dateBoundingBox) {
-      result.push(
-        mapBox(dateBoundingBox, 'box-date', 'SERVICE_DATE', 'Service Date Clause', false)
-      );
+      const scaled = scaleBoundingBox(dateBoundingBox, width, height);
+      result.push({
+        id: 'box-date',
+        ...scaled,
+        label: dateBoundingBox.label || 'SERVICE_DATE',
+        text: dateBoundingBox.text_content || 'Service Date Clause',
+        isDefect: false,
+      });
     }
 
     if (amountBoundingBox) {
-      result.push(
-        mapBox(amountBoundingBox, 'box-amount', 'DEMANDED_RENT', 'Financial Demand & Breakdown', true)
-      );
+      const scaled = scaleBoundingBox(amountBoundingBox, width, height);
+      result.push({
+        id: 'box-amount',
+        ...scaled,
+        label: amountBoundingBox.label || 'DEMANDED_AMOUNT',
+        text: amountBoundingBox.text_content || 'Financial Demand Clause',
+        isDefect: true,
+      });
     }
 
     additionalBoxes.forEach((box, i) => {
-      result.push(
-        mapBox(box, `box-additional-${i}`, box.label || 'CLAUSE', box.text_content || 'Notice Clause', false)
-      );
+      const scaled = scaleBoundingBox(box, width, height);
+      result.push({
+        id: `box-additional-${i}`,
+        ...scaled,
+        label: box.label || 'CLAUSE',
+        text: box.text_content || 'Notice Clause',
+        isDefect: false,
+      });
     });
 
     return result;
@@ -182,7 +164,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
       {/* Main Document Viewer Stage */}
       <div
         ref={containerRef}
-        className="relative flex-1 overflow-auto bg-slate-900/5 p-4 flex items-center justify-center min-h-[500px] max-h-[720px]"
+        className="relative flex-1 overflow-auto bg-slate-900/5 p-4 flex items-center justify-center min-h-[480px] max-h-[700px]"
       >
         <div
           className="relative transition-transform duration-150 origin-top shadow-lg rounded-lg overflow-hidden bg-white"
@@ -195,7 +177,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
             alt="Eviction Notice"
             onLoad={updateRenderedDimensions}
             className="block max-w-full h-auto select-none pointer-events-none"
-            style={{ maxHeight: '680px', objectFit: 'contain' }}
+            style={{ maxHeight: '660px', objectFit: 'contain' }}
           />
 
           {/* SVG Overlay Absolutely Positioned Matching Image Pixel Dimensions */}
@@ -211,18 +193,17 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                 const isHovered = hoveredBox?.id === box.id;
                 const strokeColor = box.isDefect ? '#DC2626' : '#2563EB';
                 const fillColor = box.isDefect
-                  ? 'rgba(220, 38, 38, 0.18)'
-                  : 'rgba(37, 99, 235, 0.12)';
+                  ? 'rgba(220, 38, 38, 0.20)'
+                  : 'rgba(37, 99, 235, 0.15)';
 
                 return (
                   <g key={box.id} className="pointer-events-auto cursor-pointer">
-                    {/* Interactive Rect */}
                     <rect
                       x={box.left}
                       y={box.top}
                       width={box.width}
                       height={box.height}
-                      fill={isHovered ? fillColor.replace('0.18', '0.35') : fillColor}
+                      fill={isHovered ? fillColor.replace('0.20', '0.40') : fillColor}
                       stroke={strokeColor}
                       strokeWidth={isHovered ? 3.5 : 2}
                       strokeDasharray={box.isDefect ? '4 2' : 'none'}
@@ -257,13 +238,13 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
             </svg>
           )}
 
-          {/* Popover / Tooltip when Box is Hovered */}
+          {/* Popover Tooltip */}
           {hoveredBox && (
             <div
               className="absolute z-30 pointer-events-auto rounded-xl border border-slate-300 bg-white p-3.5 shadow-2xl transition-all duration-150 max-w-xs"
               style={{
-                top: Math.max(10, Math.min(hoveredBox.top + 20, imgDimensions.height - 180)),
-                left: Math.max(10, Math.min(hoveredBox.left, imgDimensions.width - 280)),
+                top: Math.max(10, Math.min(hoveredBox.top + 20, imgDimensions.height - 160)),
+                left: Math.max(10, Math.min(hoveredBox.left, imgDimensions.width - 260)),
               }}
             >
               <div className="flex items-center gap-1.5 border-b border-slate-100 pb-1.5">
@@ -283,7 +264,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
 
               <p className="mt-1.5 text-[11px] text-slate-600 leading-normal">
                 {hoveredBox.isDefect
-                  ? 'Subject to strict statutory review. In California, non-rent fees (late charges) bundled into notice invalidate unlawful detainer.'
+                  ? 'Subject to strict statutory review. Any non-rent fees bundled into notice invalidate unlawful detainer.'
                   : 'Stated date on notice face used for zero-hallucination court-day counting.'}
               </p>
             </div>

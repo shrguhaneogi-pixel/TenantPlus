@@ -1,12 +1,14 @@
 /**
- * Project TenantPlus — Results Dashboard Component (PHASE 5)
+ * Project TenantPlus — Results Dashboard Component (FIX 7)
  * Module: frontend/components/ResultsDashboard.tsx
  * 
  * Features:
- * 1. Massive Urgent Red Countdown Timer
- * 2. Defect Checklist Card showing fatal/procedural statutory defects found by Python engine
- * 3. Key-value summary of extracted entities & court answer deadline
+ * 1. Urgent Red Countdown Timer with Court Holiday Tolling annotations
+ * 2. Statutory Defects Checklist evaluated dynamically by Python engine
+ * 3. Key-value metadata summary & actionable legal defense brief triggers
  */
+
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -14,8 +16,6 @@ import {
   AlertOctagon,
   AlertTriangle,
   Calendar,
-  DollarSign,
-  FileCheck,
   ShieldAlert,
   Phone,
   Printer,
@@ -26,10 +26,12 @@ import {
 interface ResultsDashboardProps {
   data: {
     notice_type: string;
+    jurisdiction_state?: string;
     service_date: string;
     demanded_amount: number;
     days_to_respond: number;
     exclude_weekends: boolean;
+    exclude_holidays: boolean;
     deadline_date_iso: string;
     deadline_date_formatted: string;
     is_expired: boolean;
@@ -81,7 +83,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
   }, [data.deadline_date_iso]);
 
   const handleCopySummary = () => {
-    const text = `TenantPlus Triage: ${data.notice_type}\nDeadline: ${data.deadline_date_formatted}\nDefects: ${data.defects.join('; ')}`;
+    const text = `TenantPlus Triage [${data.jurisdiction_state || 'US'}]: ${data.notice_type}\nDeadline: ${data.deadline_date_formatted}\nDefects: ${data.defects.join('; ')}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -89,7 +91,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* 1. Massive Red Countdown Timer */}
+      {/* 1. Urgent Red Countdown Timer */}
       <div className="rounded-2xl border-2 border-red-500 bg-linear-to-b from-red-50/90 via-white to-red-50/40 p-5 sm:p-6 shadow-md relative overflow-hidden">
         <div className="flex items-center justify-between border-b border-red-200 pb-3">
           <div className="flex items-center gap-2">
@@ -98,7 +100,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
               <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600" />
             </span>
             <span className="text-xs font-black uppercase tracking-wider text-red-900 font-sans">
-              COURT ANSWER DEADLINE COUNTDOWN
+              COURT ANSWER DEADLINE COUNTDOWN ({data.jurisdiction_state || 'CA'})
             </span>
           </div>
 
@@ -156,7 +158,8 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
               </div>
               <p className="mt-0.5 text-slate-600">
                 Calculated deterministically: {data.days_to_respond}-day period (Day of service excluded;{' '}
-                {data.exclude_weekends ? 'Weekends & judicial court holidays tolled' : 'Calendar day basis'}
+                {data.exclude_weekends ? 'Weekends ' : ''}
+                {data.exclude_holidays ? '& judicial court holidays tolled' : ''}
                 ).
               </p>
             </div>
@@ -180,8 +183,10 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
 
         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
           <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100 col-span-2">
-            <span className="text-[11px] text-slate-500 uppercase font-medium">Notice Type</span>
-            <div className="text-sm font-bold text-slate-900 mt-0.5">{data.notice_type}</div>
+            <span className="text-[11px] text-slate-500 uppercase font-medium">Notice Type & State</span>
+            <div className="text-sm font-bold text-slate-900 mt-0.5">
+              {data.notice_type} ({data.jurisdiction_state || 'CA'})
+            </div>
           </div>
 
           <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100">
@@ -198,7 +203,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
         </div>
       </div>
 
-      {/* 3. Defects Checklist Card (Found by Python Rules Engine) */}
+      {/* 3. Defects Checklist Card (Evaluated by Python Engine) */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
@@ -207,7 +212,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">
                 Statutory Defects Checklist
               </h3>
-              <p className="text-xs text-slate-500">Evaluated by Python Rules Engine</p>
+              <p className="text-xs text-slate-500">Evaluated by Python Rules Engine (Supabase Statutes)</p>
             </div>
           </div>
 
@@ -237,7 +242,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
                 <div className="flex-1">
                   <span className="font-bold text-red-900 block">{defect}</span>
                   <span className="text-[11px] text-red-700 mt-0.5 block leading-normal">
-                    This defect can be asserted as an affirmative defense on court Form UD-105 or Motion to Quash.
+                    Assertable as an affirmative defense on court answer pleadings or Motion to Quash.
                   </span>
                 </div>
               </div>
@@ -245,7 +250,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
           )}
         </div>
 
-        {/* Next Steps Buttons */}
+        {/* Action Triggers */}
         <div className="mt-5 flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-100">
           <button
             type="button"
