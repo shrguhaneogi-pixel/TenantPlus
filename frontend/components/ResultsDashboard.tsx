@@ -1,26 +1,29 @@
 /**
- * Project TenantPlus — Results Dashboard Component (FIX 7)
+ * Project TenantPlus — Overhauled Results Dashboard Component
  * Module: frontend/components/ResultsDashboard.tsx
  * 
  * Features:
- * 1. Urgent Red Countdown Timer with Court Holiday Tolling annotations
- * 2. Statutory Defects Checklist evaluated dynamically by Python engine
- * 3. Key-value metadata summary & actionable legal defense brief triggers
+ * 1. Softened, authoritative court deadline countdown with tabular numerals
+ * 2. Plain-English statutory defects & affirmative defenses checklist
+ * 3. Printable defense summary & 1-click legal aid referral triggers
+ * 4. Micro-interactions via Framer Motion
  */
 
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import {
   Clock,
   AlertOctagon,
   AlertTriangle,
   Calendar,
-  ShieldAlert,
   Phone,
   Printer,
   Copy,
   Check,
+  ShieldAlert,
+  Info,
 } from 'lucide-react';
 
 interface ResultsDashboardProps {
@@ -83,7 +86,7 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
   }, [data.deadline_date_iso]);
 
   const handleCopySummary = () => {
-    const text = `TenantPlus Triage [${data.jurisdiction_state || 'US'}]: ${data.notice_type}\nDeadline: ${data.deadline_date_formatted}\nDefects: ${data.defects.join('; ')}`;
+    const text = `TenantPlus Eviction Triage [${data.jurisdiction_state || 'State'}]:\nNotice: ${data.notice_type}\nCourt Answer Deadline: ${data.deadline_date_formatted}\nDemanded Amount: $${data.demanded_amount.toFixed(2)}\nPotential Defenses:\n${data.defects.length ? data.defects.map((d, i) => `${i + 1}. ${d}`).join('\n') : 'No facial defects detected'}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -91,158 +94,182 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* 1. Urgent Red Countdown Timer */}
-      <div className="rounded-2xl border-2 border-red-500 bg-linear-to-b from-red-50/90 via-white to-red-50/40 p-5 sm:p-6 shadow-md relative overflow-hidden">
-        <div className="flex items-center justify-between border-b border-red-200 pb-3">
+      {/* 1. Softened, High-Clarity Court Deadline Countdown Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl border border-rose-200/90 bg-linear-to-b from-rose-50/60 via-white to-slate-50/50 p-5 sm:p-6 shadow-xs relative overflow-hidden"
+      >
+        <div className="flex items-center justify-between border-b border-rose-100 pb-3">
           <div className="flex items-center gap-2">
-            <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600" />
+            <span className="flex h-2.5 w-2.5 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600" />
             </span>
-            <span className="text-xs font-black uppercase tracking-wider text-red-900 font-sans">
-              COURT ANSWER DEADLINE COUNTDOWN ({data.jurisdiction_state || 'CA'})
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-900 font-sans">
+              Court Answer Deadline ({data.jurisdiction_state || 'CA'})
             </span>
           </div>
 
-          <span className="rounded-full bg-red-600 px-3 py-0.5 text-xs font-bold text-white shadow-xs">
-            {countdown.isExpired ? 'DEADLINE EXPIRED' : 'ACTIVE NOTICE PERIOD'}
+          <span
+            className={`rounded-full px-3 py-0.5 text-xs font-semibold ${
+              countdown.isExpired
+                ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+            }`}
+          >
+            {countdown.isExpired ? 'Notice Period Expired' : 'Active Notice Window'}
           </span>
         </div>
 
-        {/* Big Digit Blocks */}
+        {/* Big Digit Blocks with Tabular Numerals */}
         <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3 text-center">
-          <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-sm ring-1 ring-slate-800">
-            <div className="text-3xl sm:text-4xl font-black font-mono text-white">
+          <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-2xs">
+            <div className="text-3xl sm:text-4xl font-black font-mono tabular-nums text-white">
               {String(countdown.days).padStart(2, '0')}
             </div>
-            <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               Days
             </div>
           </div>
 
-          <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-sm ring-1 ring-slate-800">
-            <div className="text-3xl sm:text-4xl font-black font-mono text-white">
+          <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-2xs">
+            <div className="text-3xl sm:text-4xl font-black font-mono tabular-nums text-white">
               {String(countdown.hours).padStart(2, '0')}
             </div>
-            <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               Hours
             </div>
           </div>
 
-          <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-sm ring-1 ring-slate-800">
-            <div className="text-3xl sm:text-4xl font-black font-mono text-red-400">
+          <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-2xs">
+            <div className="text-3xl sm:text-4xl font-black font-mono tabular-nums text-rose-300">
               {String(countdown.minutes).padStart(2, '0')}
             </div>
-            <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               Mins
             </div>
           </div>
 
-          <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-sm ring-1 ring-slate-800">
-            <div className="text-3xl sm:text-4xl font-black font-mono text-red-500">
+          <div className="rounded-xl bg-slate-900 p-2.5 sm:p-3 text-white shadow-2xs">
+            <div className="text-3xl sm:text-4xl font-black font-mono tabular-nums text-rose-400">
               {String(countdown.seconds).padStart(2, '0')}
             </div>
-            <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               Secs
             </div>
           </div>
         </div>
 
-        {/* Deterministic Legal Finding Banner */}
-        <div className="mt-4 rounded-xl bg-white p-3 border border-red-200 text-xs shadow-xs">
-          <div className="flex items-start gap-2">
-            <Calendar className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+        {/* Plain-English Legal Finding Banner */}
+        <div className="mt-4 rounded-xl bg-white p-3.5 border border-slate-200/80 text-xs shadow-2xs">
+          <div className="flex items-start gap-2.5">
+            <Calendar className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
             <div>
               <div className="font-bold text-slate-900 text-sm">
-                {data.deadline_date_formatted}
+                Deadline: {data.deadline_date_formatted}
               </div>
-              <p className="mt-0.5 text-slate-600">
-                Calculated deterministically: {data.days_to_respond}-day period (Day of service excluded;{' '}
-                {data.exclude_weekends ? 'Weekends ' : ''}
-                {data.exclude_holidays ? '& judicial court holidays tolled' : ''}
-                ).
+              <p className="mt-1 text-slate-600 leading-relaxed">
+                Your landlord cannot legally file an eviction lawsuit in court until after this exact date.
+                {data.exclude_weekends ? ' Saturdays and Sundays are excluded.' : ''}
+                {data.exclude_holidays ? ' Official state judicial court holidays are added to your time.' : ''}
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* 2. Key Data Summary Card */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-2.5 flex items-center justify-between">
-          <span>Notice Metadata Summary</span>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
+      >
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+            Notice Details
+          </h3>
           <button
             type="button"
             onClick={handleCopySummary}
-            className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition-colors"
           >
-            {copied ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
-            <span>{copied ? 'Copied' : 'Copy'}</span>
+            {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+            <span className="font-medium">{copied ? 'Copied to Clipboard' : 'Copy Summary'}</span>
           </button>
-        </h3>
+        </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-          <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100 col-span-2">
-            <span className="text-[11px] text-slate-500 uppercase font-medium">Notice Type & State</span>
+        <div className="mt-3.5 grid grid-cols-2 gap-3 text-xs">
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 col-span-2">
+            <span className="text-[11px] text-slate-500 font-medium">Notice Type & Jurisdiction</span>
             <div className="text-sm font-bold text-slate-900 mt-0.5">
-              {data.notice_type} ({data.jurisdiction_state || 'CA'})
+              {data.notice_type} · {data.jurisdiction_state || 'CA'}
             </div>
           </div>
 
-          <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100">
-            <span className="text-[11px] text-slate-500 uppercase font-medium">Service Date</span>
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+            <span className="text-[11px] text-slate-500 font-medium">Service Date</span>
             <div className="text-sm font-bold text-slate-900 mt-0.5">{data.service_date}</div>
           </div>
 
-          <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100">
-            <span className="text-[11px] text-slate-500 uppercase font-medium">Demanded Sum</span>
-            <div className="text-sm font-mono font-bold text-slate-900 mt-0.5">
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+            <span className="text-[11px] text-slate-500 font-medium">Demanded Amount</span>
+            <div className="text-sm font-mono font-bold text-slate-900 mt-0.5 tabular-nums">
               ${data.demanded_amount.toFixed(2)}
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* 3. Defects Checklist Card (Evaluated by Python Engine) */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      {/* 3. Defects & Affirmative Defenses Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs"
+      >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <AlertOctagon className="h-5 w-5 text-red-600" />
+            <AlertOctagon className="h-5 w-5 text-rose-600" />
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">
-                Statutory Defects Checklist
+              <h3 className="text-sm font-bold text-slate-900 font-sans">
+                Potential Notice Defenses
               </h3>
-              <p className="text-xs text-slate-500">Evaluated by Python Rules Engine (Supabase Statutes)</p>
+              <p className="text-xs text-slate-500">Errors that could dismiss or delay an eviction</p>
             </div>
           </div>
 
           {data.has_fatal_defects ? (
-            <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-800 border border-red-200">
-              {data.defects.length} Defect{data.defects.length > 1 ? 's' : ''} Flagged
+            <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-800 border border-rose-200">
+              {data.defects.length} Defense{data.defects.length > 1 ? 's' : ''} Identified
             </span>
           ) : (
-            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
-              No Defects Flagged
+            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 border border-emerald-200">
+              Standard Notice Language
             </span>
           )}
         </div>
 
         <div className="mt-3.5 space-y-2.5">
           {data.defects.length === 0 ? (
-            <p className="text-xs text-slate-500 italic p-3 text-center">
-              No mandatory statutory defects detected on notice face.
-            </p>
+            <div className="rounded-xl bg-slate-50 p-4 text-xs text-slate-600 flex items-start gap-2 border border-slate-100">
+              <Info className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+              <span>
+                No obvious statutory violations detected on the face of the document. Even so, you may have defenses based on habitability, improper service, or retaliation.
+              </span>
+            </div>
           ) : (
             data.defects.map((defect, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-red-200 bg-red-50/60 p-3 text-xs flex items-start gap-2.5"
+                className="rounded-xl border border-rose-200/90 bg-rose-50/40 p-3.5 text-xs flex items-start gap-2.5"
               >
-                <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <span className="font-bold text-red-900 block">{defect}</span>
-                  <span className="text-[11px] text-red-700 mt-0.5 block leading-normal">
-                    Assertable as an affirmative defense on court answer pleadings or Motion to Quash.
+                  <span className="font-bold text-slate-900 block">{defect}</span>
+                  <span className="text-[11px] text-slate-600 mt-1 block leading-normal">
+                    This mistake may give you legal grounds to dismiss an unlawful detainer lawsuit or file a Motion to Quash.
                   </span>
                 </div>
               </div>
@@ -255,22 +282,22 @@ export const ResultsDashboard: React.FC<ResultsDashboardProps> = ({
           <button
             type="button"
             onClick={onOpenBrief}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-slate-800 transition-colors"
           >
-            <Printer className="h-4 w-4 text-red-400" />
-            <span>Download Defense Brief</span>
+            <Printer className="h-4 w-4 text-rose-400" />
+            <span>Print Defense Brief</span>
           </button>
 
           <button
             type="button"
             onClick={onOpenLegalAid}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-red-700 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 transition-colors"
           >
             <Phone className="h-4 w-4" />
-            <span>Find Local Legal Aid</span>
+            <span>Connect with Free Legal Aid</span>
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
