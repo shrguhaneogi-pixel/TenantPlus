@@ -3,14 +3,18 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "cd frontend && npx next dev -p 3000 -H 0.0.0.0",
+    "build": "cd frontend && npx next build",
+    "start": "cd frontend && npx next start -p 3000 -H 0.0.0.0",
+    "lint": "cd frontend && npx tsc --noEmit",
+    "dev:frontend": "cd frontend && npx next dev -p 3000 -H 0.0.0.0",
     "dev:backend": "cd backend && uvicorn main:app --reload --port 8000",
-    "build:frontend": "cd frontend && npm run build",
-    "build": "cd frontend && npm run build",
-    "lint:frontend": "cd frontend && npm run lint",
-    "test:backend": "python scratch/test_e2e_simulation.py"
+    "build:frontend": "cd frontend && npx next build",
+    "lint:frontend": "cd frontend && npx tsc --noEmit",
+    "test:backend": "python3 scratch/test_e2e_simulation.py"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "lucide-react": "^0.546.0",
     "next": "^15.1.0",
     "react": "^19.0.0",

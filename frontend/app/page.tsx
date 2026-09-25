@@ -21,6 +21,8 @@ export default function TenantPlusPage() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [showLegalAidModal, setShowLegalAidModal] = useState<boolean>(false);
+
   const handleTriageSuccess = (data: any, imageUrl: string) => {
     setTriageResponse(data);
     setUploadedImageUrl(imageUrl);
@@ -31,6 +33,7 @@ export default function TenantPlusPage() {
     setTriageResponse(null);
     setUploadedImageUrl('');
     setErrorMessage(null);
+    setShowLegalAidModal(false);
   };
 
   return (
@@ -132,7 +135,7 @@ export default function TenantPlusPage() {
               <div className="lg:col-span-6">
                 <ResultsDashboard
                   data={triageResponse.data}
-                  onOpenLegalAid={() => alert(`Connecting with legal aid hotline`)}
+                  onOpenLegalAid={() => setShowLegalAidModal(true)}
                   onOpenBrief={() => window.print()}
                 />
               </div>
@@ -140,6 +143,58 @@ export default function TenantPlusPage() {
           </div>
         )}
       </main>
+
+      {/* In-app Legal Aid Directory Modal */}
+      {showLegalAidModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Scale className="h-5 w-5 text-red-500" />
+                <h3 className="font-bold text-base">Emergency Legal Aid & Clinic Directory</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLegalAidModal(false)}
+                className="text-slate-400 hover:text-white text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-xs text-slate-600">
+                If you have received an eviction notice, legal aid organizations provide free, confidential advice and representation to qualified tenants:
+              </p>
+              <div className="space-y-3">
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div className="font-bold text-slate-900 text-sm">Eviction Defense Collaborative</div>
+                  <div className="text-xs text-slate-600 mt-1">Tenant legal hotline, answer filing assistance & rental subsidy referrals.</div>
+                  <div className="text-xs font-semibold text-red-600 mt-1.5">Phone: (415) 659-9184</div>
+                </div>
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div className="font-bold text-slate-900 text-sm">Legal Aid Foundation (LAFLA)</div>
+                  <div className="text-xs text-slate-600 mt-1">Defense against unlawful detainers and statutory defect challenges.</div>
+                  <div className="text-xs font-semibold text-red-600 mt-1.5">Phone: 1-800-399-4529</div>
+                </div>
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div className="font-bold text-slate-900 text-sm">New York Legal Assistance Group (NYLAG)</div>
+                  <div className="text-xs text-slate-600 mt-1">Housing rights clinic and emergency tenant representation.</div>
+                  <div className="text-xs font-semibold text-red-600 mt-1.5">Phone: (212) 613-5000</div>
+                </div>
+              </div>
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowLegalAidModal(false)}
+                  className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800"
+                >
+                  Close Directory
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="mt-auto border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
